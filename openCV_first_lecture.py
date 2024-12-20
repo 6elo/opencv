@@ -1,3 +1,20 @@
+#include some exemples from mediaPipe library to draw lines,circles, rectangles, text, and to get landmarks of hand
+#work only with Python version 3.11 and lower
+#to run this code you need to install mediapipe library
+#pip install mediapipe
+#pip install opencv-python
+
+#read the quests
+#Kids works is to do quests
+#1 -create  variables/list/field for every landmarks (0-20)  (handmark_number=ids,position x, position y)
+#2 -calculate distance between two points
+#3 -recognize fist (wrist_position and position of EVERY finger TIP at some distance away from wrist)
+#4 -calculate how many fingers is opened....and print it, finger tip is at some distance away from MPC
+#5 -recognize gesto and print its name (compared position of  landmarks and recognize gesto)
+#6 -make it work at any distance away from camera #chek distance from wrist to finger tip and compare it with lenth from wrist to
+#7 -slice program for better reading, make separate gesture program
+
+
 import cv2
 import mediapipe as mp
 import math
@@ -105,14 +122,17 @@ with mp_hands.Hands(
             if distance < 50:
                 print("too small")
 
-########draw hand point, line from poin to point, write the lenth of line.... just exemple to remember
+        #draw hand point, line from poin to point, write the lenth of line.... just exemple to remember
         cv2.circle(image, (ids8[0],ids8[1]), 10, (255, 0, 128), cv2.FILLED)
         cv2.line(image, (ids8[0],ids8[1]), (ids4[0],ids4[1]), (255, 0, 128), 3)
+        
         #need to flip only text
         image = cv2.flip(image, 1)
+        #put text inside this two flips
+        #cv2.putText(image, str(int(distance)), ((image_width-ids4[0]-90),ids4[1]), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 128), 2,cv2.LINE_AA,False)
         cv2.putText(image, str(int(distance)), ((image_width-ids4[0]-90),ids4[1]), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 128), 2,cv2.LINE_AA,False)
         image = cv2.flip(image, 1)
-#########draw rectangle around the hand
+  
         cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2) #draw rectangle around hand.... just exemple
 
             #2 -recognize fist (wrist_position and position of EVERY finger TIP at some distance away from wrist) 
