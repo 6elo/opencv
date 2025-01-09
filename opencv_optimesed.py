@@ -133,12 +133,13 @@ with mp_hands.Hands(
                 countFin = countFin + 1
                 openedFing[4] = "pinky"
             
+            
         #to draw some shapes on image
         # #to draw a circle on "image" with center in "ids8" and "radius 10", "color (255, 0, 128)" and "filled circle, use number for thickness to draw circle    
-        cv2.circle(image, (idsMass[8][0],idsMass[8][1]), 10, (255, 0, 128), cv2.FILLED)
+        cv2.circle(image, (idsMass[0][8][0],idsMass[0][8][1]), 10, (255, 0, 128), cv2.FILLED)
 
         #to draw a line between idsmass[8] and idsmass[4] with color (255, 0, 128) and thickness 3
-        cv2.line(image, (idsMass[8][0],idsMass[8][1]), (idsMass[4][0],idsMass[4][1]), (255, 0, 128), 3) 
+        cv2.line(image, (idsMass[0][8][0],idsMass[0][8][1]), (idsMass[0][4][0],idsMass[0][4][1]), (255, 0, 128), 3) 
 
         #to draw a rectangle around hand(smalest and highest points) on image with color (0, 255, 0) and thickness 2
         cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
@@ -147,7 +148,7 @@ with mp_hands.Hands(
         image = cv2.flip(image, 1) 
         #write text on image with text "gesture" on position (80,100) with font "cv2.FONT_HERSHEY_SIMPLEX", size 1, color (0, 0, 255), thickness 2
         cv2.putText(image, gesture, (80, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2) 
-        cv2.putText(image, str(hand_type), (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(image, ("right" if hand_type == 1 else "left"), (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         cv2.putText(image, str(countFin), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 125, 125), 2)
         cv2.putText(image, str(openedFing), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (125, 125, 0), 2)
         image = cv2.flip(image, 1)
