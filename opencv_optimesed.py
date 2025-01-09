@@ -1,4 +1,3 @@
-
 #Include some exemples from mediaPipe library to draw lines,circles, rectangles, text, and to get landmarks of hand
 #This code is a bit optiamised but a bit worse to read for kids
 
@@ -54,7 +53,10 @@ with mp_hands.Hands(
 
             #change hand label to right or left, there fliped hands in mirror view so we need to change it here for better reading, if u dont use 
             #mirror view u dont need to change it and can use directly hand_label
-            hand_type = "right" if hand_label == "Left" else "left" 
+            if hand_label == "Left":
+                hand_type = 1 #right hand
+            else:
+                hand_type = 0 #left hand
             
             mp_drawing.draw_landmarks(
                 image,
@@ -66,16 +68,16 @@ with mp_hands.Hands(
         x_min = image_width
         y_min = image_height
        
-
         #create  variables/list/field for every landmarks (0-20)  (handmark_number=ids,position x, position y, position z)
-        idsMass=[[0, 0, 0]]*21
+        idsMass = [[[0, 0, 0] for _ in range(21)], [[0, 0, 0] for _ in range(21)]]
+
 
         #wer used this part of code to get landmarks of hand, make them as a list and store them in idsMass
         for ids, landmrk in enumerate(hand_landmarks.landmark):
             cx = int(landmrk.x * image_width) 
             cy = int(landmrk.y * image_height)
             cz = int(landmrk.z)
-            idsMass[ids] = [cx, cy, cz]
+            idsMass[hand_type][ids] = [cx, cy, cz]
             
             #if u dont need to draw rectangle around hand, u can delete this part of code
             #find the biggest and smallest X ... for rectangel for exemple 
@@ -89,39 +91,47 @@ with mp_hands.Hands(
             if cy < y_min:
                 y_min = cy
 
-            gesture="unknown gesture"
-            countFin=0
-            openedFing=["no","no","no","no","no"]
+            gesture = "unknown gesture"
+            countFin = 0
+            openedFing = ["no", "no", "no", "no", "no"]
 
-            #fast function to calculate distance between two points
-            def distance(p1,p2):
-                dis=abs(int(math.sqrt(((idsMass[p1][0]) - (idsMass[p2][0])) ** 2 + ((idsMass[p1][1]) - (idsMass[p2][1])) ** 2 +((idsMass[p1][2]) - (idsMass[p2][2])) ** 2))) #alternative way to calculate distance of points in 3D world look math "sqrt" and "hypot"
+            # Fast function to calculate distance between two points
+            def distance(p1, p2):
+                dis = abs(int(math.sqrt(
+                    (idsMass[p1[0]][p1[1]][0] - idsMass[p2[0]][p2[1]][0]) ** 2 +
+                    (idsMass[p1[0]][p1[1]][1] - idsMass[p2[0]][p2[1]][1]) ** 2 +
+                    (idsMass[p1[0]][p1[1]][2] - idsMass[p2[0]][p2[1]][2]) ** 2
+                )))  # alternative way to calculate distance of points in 3D world look math "sqrt" and "hypot"
                 return dis
-            
-            #Ur first gesture is fist
-            if distance(0,4) < distance(0,11) and distance(0,8) < distance(0,5) and distance(0,12) < distance(0,9) and distance(0,16) < distance(0,13) and distance(0,20) < distance(0,17):
-                gesture="any distance fist"
-            
-            #number of fingers is opened + which one is opened
-            if distance(4,0) >= (distance(0,1) + distance(1,2) + distance(2,3)):
-                countFin=countFin+1
-                openedFing[0]="thumb"
 
-            if distance(8,0) >= (distance(0,5)+distance(5,6)+distance(6,7)):
-               countFin=countFin+1
-               openedFing[1]="index"
+            # Your first gesture is fist
+            if distance((0, 0), (0, 4)) < distance((0, 0), (0, 11)) and \
+               distance((0, 0), (0, 8)) < distance((0, 0), (0, 5)) and \
+               distance((0, 0), (0, 12)) < distance((0, 0), (0, 9)) and \
+               distance((0, 0), (0, 16)) < distance((0, 0), (0, 13)) and \
+               distance((0, 0), (0, 20)) < distance((0, 0), (0, 17)):
+                gesture = "any distance fist"
 
-            if distance(12,0) >= (distance(0,9)+distance(9,10)+distance(10,11)):
-               countFin=countFin+1
-               openedFing[2]="middle"
+            # Number of fingers is opened + which one is opened
+            if distance((0, 4), (0, 0)) >= (distance((0, 0), (0, 1)) + distance((0, 1), (0, 2)) + distance((0, 2), (0, 3))):
+                countFin = countFin + 1
+                openedFing[0] = "thumb"
 
-            if distance(16,0) >= (distance(0,13)+distance(13,14)+distance(14,15)):
-               countFin=countFin+1
-               openedFing[3]="ring"
+            if distance((0, 8), (0, 0)) >= (distance((0, 0), (0, 5)) + distance((0, 5), (0, 6)) + distance((0, 6), (0, 7))):
+                countFin = countFin + 1
+                openedFing[1] = "index"
 
-            if distance(20,0) >= (distance(0,17)+distance(17,18)+distance(18,19)):
-               countFin=countFin+1
-               openedFing[4]="pinky"
+            if distance((0, 12), (0, 0)) >= (distance((0, 0), (0, 9)) + distance((0, 9), (0, 10)) + distance((0, 10), (0, 11))):
+                countFin = countFin + 1
+                openedFing[2] = "middle"
+
+            if distance((0, 16), (0, 0)) >= (distance((0, 0), (0, 13)) + distance((0, 13), (0, 14)) + distance((0, 14), (0, 15))):
+                countFin = countFin + 1
+                openedFing[3] = "ring"
+
+            if distance((0, 20), (0, 0)) >= (distance((0, 0), (0, 17)) + distance((0, 17), (0, 18)) + distance((0, 18), (0, 19))):
+                countFin = countFin + 1
+                openedFing[4] = "pinky"
             
         #to draw some shapes on image
         # #to draw a circle on "image" with center in "ids8" and "radius 10", "color (255, 0, 128)" and "filled circle, use number for thickness to draw circle    
@@ -137,13 +147,13 @@ with mp_hands.Hands(
         image = cv2.flip(image, 1) 
         #write text on image with text "gesture" on position (80,100) with font "cv2.FONT_HERSHEY_SIMPLEX", size 1, color (0, 0, 255), thickness 2
         cv2.putText(image, gesture, (80, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2) 
-        cv2.putText(image, hand_type, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(image, str(hand_type), (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         cv2.putText(image, str(countFin), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 125, 125), 2)
         cv2.putText(image, str(openedFing), (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (125, 125, 0), 2)
         image = cv2.flip(image, 1)
 
     # Flip the image horizontally for a mirror-view
     cv2.imshow('HandTracking', cv2.flip(image, 1))
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord('q') or cv2.waitKey(1) & 0xFF == ord('Q'):
       break
 cap.release()
