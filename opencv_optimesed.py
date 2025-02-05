@@ -6,21 +6,21 @@
 #pip install mediapipe
 #pip install opencv-python
 #math is a standard library in python
-#press "q" to exit program and close camera
+#press "Q" to exit program and close camera
 
 
 #QUEST: 
 #0 -create  variables/list/field for every landmarks (0-20)  (handmark_number=ids,position x, position y, position z)
 #1 -calculate distance between two points
 #2 -recognize fist (wrist_position and position of EVERY finger TIP at some distance away from wrist) 
-#3 -calculate how many fingers is opened....and print it, finger tip is at some distance away from MPC
+#3 -calculate how many fingers is opened....and print it, finger tip is at some distance away from wrist
 #4 -recognize gesto and print its name (compared position of  landmarks and recognize gesto)
 #5 -make it work at any distance away from camera #chek distance from wrist to finger tip and compare it with lenth from wrist to tip    
-#6 -slice program for better reading, make separate gesture program
-#7 -make virtual mouse with gesto
-#8 -use some gesto for macros/system control/
-#9 -make animated gesto
-#10 -use more hands
+#6 -use two hands at the same time
+#7 -make a history of last 10 frames change
+#8 -make a mouse with gesto
+#9 make zoom in and out with gesto
+#10 -make zoom in and out animated gesto like a touchpad 
 #11 -make hiden keyboard with gesto
 
 import cv2
@@ -188,14 +188,11 @@ with mp_hands.Hands(
             idsMass_history.pop(0)
             idsMass_history.append(copy.deepcopy(idsMass))
             last_update_time = current_time
-        print("$" * 80)
-        print(idsMass)
-        #print("#" * 80)
-        #print(idsMass_history)
-        #to draw some shapes on image
-        # #to draw a circle on "image" with center in "ids8" and "radius 10", "color (255, 0, 128)" and "filled circle, use number for thickness to draw circle    
+
+        #to draw a circle on "image" with center in "ids8" and "radius 10", "color (255, 0, 128)" and "filled circle, use number for thickness to draw circle    
         cv2.circle(image, (idsMass[0][8][0],idsMass[0][8][1]), 10, (255, 0, 128), cv2.FILLED)
 
+        #to draw an history points at avery finge tip
         for hand_history in idsMass_history:
             for hand in hand_history:
                 for fingertip in [4, 8, 12, 16, 20]:  # Assuming these are the indices for the fingertips
