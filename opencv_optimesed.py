@@ -60,7 +60,7 @@ with mp_hands.Hands(
     x_min = image_width
     y_min = image_height
 
-    # Create variables/list/field for every landmark (0-20) (handmark_number=ids, position x, position y, position z)
+    # Create variables/list/field for every landmark (0-20) 
     idsMass = [[[0, 0, 0] for _ in range(21)], [[0, 0, 0] for _ in range(21)]]  # 0 - left hand, 1 - right hand
 
     if results.multi_hand_landmarks:
@@ -99,10 +99,6 @@ with mp_hands.Hands(
                 if cy < y_min:
                     y_min = cy
 
-    # Now idsMass contains the positions of both hands
-    print("#" * 20)
-    print(idsMass)
-
     if results.multi_hand_landmarks:
         for hand_landmarks, hand_info in zip(results.multi_hand_landmarks,results.multi_handedness):
             hand_label = hand_info.classification[0].label  # 'Left' or 'Right'
@@ -124,8 +120,7 @@ with mp_hands.Hands(
         x_min = image_width
         y_min = image_height
        
-        #create  variables/list/field for every landmarks (0-20)  (handmark_number=ids,position x, position y, position z)
-        idsMass = [[[0, 0, 0] for _ in range(21)], [[0, 0, 0] for _ in range(21)]] # 0 - left hand, 1 - right hand
+        
         #wer used this part of code to get landmarks of hand, make them as a list and store them in idsMass
         for ids, landmrk in enumerate(hand_landmarks.landmark):
             cx = int(landmrk.x * image_width) 
@@ -149,7 +144,7 @@ with mp_hands.Hands(
             countFin = 0
             openedFing = ["no", "no", "no", "no", "no"]
 
-            # Fast function to calculate distance between two points
+            # Fast function to calculate distance between two points p1, p2 in 3D world (x, y, z) 
             def distance(p1, p2):
                 dis = abs(int(math.sqrt(
                     (idsMass[p1[0]][p1[1]][0] - idsMass[p2[0]][p2[1]][0]) ** 2 +
@@ -193,21 +188,21 @@ with mp_hands.Hands(
             idsMass_history.pop(0)
             idsMass_history.append(copy.deepcopy(idsMass))
             last_update_time = current_time
-        print("#" * 20)
+        print("$" * 80)
         print(idsMass)
-            
+        #print("#" * 80)
+        #print(idsMass_history)
         #to draw some shapes on image
         # #to draw a circle on "image" with center in "ids8" and "radius 10", "color (255, 0, 128)" and "filled circle, use number for thickness to draw circle    
         cv2.circle(image, (idsMass[0][8][0],idsMass[0][8][1]), 10, (255, 0, 128), cv2.FILLED)
-        
-        for hand in idsMass:
-            for fingertip in [4,8, 12, 16, 20]:  # Assuming these are the indices for the fingertips
-                cv2.circle(image, (hand[fingertip][0], hand[fingertip][1]), 5, (255, 0, 128), cv2.FILLED)
 
+        for hand_history in idsMass_history:
+            for hand in hand_history:
+                for fingertip in [4, 8, 12, 16, 20]:  # Assuming these are the indices for the fingertips
+                    cv2.circle(image, (hand[fingertip][0], hand[fingertip][1]), 5, (255, 0, 128), cv2.FILLED)
 
-        
         #to draw a line between idsmass[8] and idsmass[4] with color (255, 0, 128) and thickness 3
-        cv2.line(image, (idsMass[0][8][0],idsMass[0][8][1]), (idsMass[0][4][0],idsMass[0][4][1]), (255, 0, 128), 3) 
+        #cv2.line(image, (idsMass[0][8][0],idsMass[0][8][1]), (idsMass[0][4][0],idsMass[0][4][1]), (255, 0, 128), 3) 
 
         #to draw a rectangle around hand(smalest and highest points) on image with color (0, 255, 0) and thickness 2
         #cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
