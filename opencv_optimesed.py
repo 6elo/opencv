@@ -54,6 +54,55 @@ with mp_hands.Hands(
 
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+    x_max = 0
+    y_max = 0
+    x_min = image_width
+    y_min = image_height
+
+    # Create variables/list/field for every landmark (0-20) (handmark_number=ids, position x, position y, position z)
+    idsMass = [[[0, 0, 0] for _ in range(21)], [[0, 0, 0] for _ in range(21)]]  # 0 - left hand, 1 - right hand
+
+    if results.multi_hand_landmarks:
+        for hand_landmarks, hand_info in zip(results.multi_hand_landmarks, results.multi_handedness):
+            hand_label = hand_info.classification[0].label  # 'Left' or 'Right'
+            
+            # Change hand label to right or left, there flipped hands in mirror view so we need to change it here for better reading
+            if hand_label == "Left":
+                hand_type = 1  # right hand
+            else:
+                hand_type = 0  # left hand
+            
+            mp_drawing.draw_landmarks(
+                image,
+                hand_landmarks,
+                mp_hands.HAND_CONNECTIONS,
+                mp_drawing_styles.get_default_hand_landmarks_style()
+            )
+            
+            # Process landmarks for each hand
+            for ids, landmrk in enumerate(hand_landmarks.landmark):
+                cx = int(landmrk.x * image_width)
+                cy = int(landmrk.y * image_height)
+                cz = int(landmrk.z)
+                idsMass[hand_type][ids] = [cx, cy, cz]
+                
+                # If you don't need to draw a rectangle around the hand, you can delete this part of the code
+                # Find the biggest and smallest X ... for rectangle for example
+                if cx > x_max:
+                    x_max = cx
+                if cx < x_min:
+                    x_min = cx
+                # Find the biggest and smallest Y ... for rectangle for example
+                if cy > y_max:
+                    y_max = cy
+                if cy < y_min:
+                    y_min = cy
+
+    # Now idsMass contains the positions of both hands
+    print("#" * 20)
+    print(idsMass)
+
     if results.multi_hand_landmarks:
         for hand_landmarks, hand_info in zip(results.multi_hand_landmarks,results.multi_handedness):
             hand_label = hand_info.classification[0].label  # 'Left' or 'Right'
