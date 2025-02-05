@@ -26,11 +26,18 @@
 import cv2
 import mediapipe as mp
 import math
+import time
+import copy
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 cap = cv2.VideoCapture(0)
+
+last_update_time = time.time()  # Initialize once outside the loop
+
+idsMass = [[[0, 0, 0] for _ in range(21)], [[0, 0, 0] for _ in range(21)]] # 0 - left hand, 1 - right hand
+idsMass_history = [copy.deepcopy(idsMass) for _ in range(9)] # History of the last 10 frames change
 
 with mp_hands.Hands(
     model_complexity=0,
@@ -50,7 +57,7 @@ with mp_hands.Hands(
     if results.multi_hand_landmarks:
         for hand_landmarks, hand_info in zip(results.multi_hand_landmarks,results.multi_handedness):
             hand_label = hand_info.classification[0].label  # 'Left' or 'Right'
-
+            
             #change hand label to right or left, there fliped hands in mirror view so we need to change it here for better reading, if u dont use 
             #mirror view u dont need to change it and can use directly hand_label
             if hand_label == "Left":
@@ -69,9 +76,7 @@ with mp_hands.Hands(
         y_min = image_height
        
         #create  variables/list/field for every landmarks (0-20)  (handmark_number=ids,position x, position y, position z)
-        idsMass = [[[0, 0, 0] for _ in range(21)], [[0, 0, 0] for _ in range(21)]]
-
-
+        idsMass = [[[0, 0, 0] for _ in range(21)], [[0, 0, 0] for _ in range(21)]] # 0 - left hand, 1 - right hand
         #wer used this part of code to get landmarks of hand, make them as a list and store them in idsMass
         for ids, landmrk in enumerate(hand_landmarks.landmark):
             cx = int(landmrk.x * image_width) 
@@ -133,16 +138,30 @@ with mp_hands.Hands(
                 countFin = countFin + 1
                 openedFing[4] = "pinky"
             
+        # Variable to track the last update time
+        current_time = time.time()
+        if (current_time - last_update_time) >= 0.1:
+            idsMass_history.pop(0)
+            idsMass_history.append(copy.deepcopy(idsMass))
+            last_update_time = current_time
+        print("#" * 20)
+        print(idsMass)
             
         #to draw some shapes on image
         # #to draw a circle on "image" with center in "ids8" and "radius 10", "color (255, 0, 128)" and "filled circle, use number for thickness to draw circle    
         cv2.circle(image, (idsMass[0][8][0],idsMass[0][8][1]), 10, (255, 0, 128), cv2.FILLED)
+        
+        for hand in idsMass:
+            for fingertip in [4,8, 12, 16, 20]:  # Assuming these are the indices for the fingertips
+                cv2.circle(image, (hand[fingertip][0], hand[fingertip][1]), 5, (255, 0, 128), cv2.FILLED)
 
+
+        
         #to draw a line between idsmass[8] and idsmass[4] with color (255, 0, 128) and thickness 3
         cv2.line(image, (idsMass[0][8][0],idsMass[0][8][1]), (idsMass[0][4][0],idsMass[0][4][1]), (255, 0, 128), 3) 
 
         #to draw a rectangle around hand(smalest and highest points) on image with color (0, 255, 0) and thickness 2
-        cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+        #cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
         #need to flip only text, write any text inside of two flips
         image = cv2.flip(image, 1) 
