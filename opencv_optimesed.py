@@ -30,7 +30,6 @@ import copy
 import pyautogui
 
 mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 cap = cv2.VideoCapture(0)
 
@@ -40,7 +39,6 @@ idsMass = [[[0, 0, 0] for _ in range(21)], [[0, 0, 0] for _ in range(21)]]  # 0 
 idsMass_history = [copy.deepcopy(idsMass) for _ in range(9)]  # History of the last 10 frames change
 prev_x, prev_y = None, None
 prev_frame_time = 0
-new_frame_time = 0
 
 # Functions
 def distance(hand1, landmark1, hand2, landmark2):
@@ -91,14 +89,14 @@ def control_mouse_with_gesture(point):
         prev_x, prev_y = x, y
 
 def recognize_fist():
-    gesto="unknown qesto "
-    if  (distance(0, 0, 0, 4) < distance(0, 0, 0, 11) and
+    gesture = "unknown gesture"
+    if (distance(0, 0, 0, 4) < distance(0, 0, 0, 11) and
         distance(0, 0, 0, 8) < distance(0, 0, 0, 5) and
         distance(0, 0, 0, 12) < distance(0, 0, 0, 9) and
         distance(0, 0, 0, 16) < distance(0, 0, 0, 13) and
         distance(0, 0, 0, 20) < distance(0, 0, 0, 17)):
-        gesto="fist"
-    return gesto
+        gesture = "fist"
+    return gesture
 
 def count_open_fingers():
     countFin = 0
