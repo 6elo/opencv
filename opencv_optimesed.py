@@ -8,7 +8,6 @@
 #math is a standard library in python
 #press "Q" to exit program and close camera
 
-
 #QUEST: 
 #0 -create  variables/list/field for every landmarks (0-20)  (handmark_number=ids,position x, position y, position z)
 #1 -calculate distance between two points
